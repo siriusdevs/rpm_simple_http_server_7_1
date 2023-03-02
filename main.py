@@ -47,6 +47,7 @@ def get_template(path: str) -> str:
 class CustomHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        print(self.__dict__)
         self.send_response(200)
         self.send_header('Content-type', 'html')
         self.end_headers()
@@ -65,20 +66,24 @@ class CustomHandler(BaseHTTPRequestHandler):
         self.wfile.write(msg.encode())
 
 
+    def make_changes(self) -> tuple:
+        if self.path in PAGES:
+            request = INSERT if self.command == 'POST' else DELETE
+            content_length = int(self.headers['Content-Length'])
+            request_data = loads(self.rfile.read(content_length).decode())
+            name = request_data.get('name')
+            result = 'OK' if change_db(self.path, name, request) else 'FAIL'
+            return 200, f'{self.command} {result}'
+        else:
+            return 404, 'Content not found'
+
+
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        request_data = loads(self.rfile.read(content_length).decode())
-        name = request_data.get('name')
-        change_db(self.path, name, INSERT)
-        self.respond(200, 'POST OK')
+        self.respond(*self.make_changes())
 
 
     def do_DELETE(self):
-        content_length = int(self.headers['Content-Length'])
-        request_data = loads(self.rfile.read(content_length).decode())
-        name = request_data.get('name')
-        change_db(self.path, name, DELETE)
-        self.respond(200, 'DELETE OK')
+        self.respond(*self.make_changes())
 
 
 if __name__ == '__main__':
