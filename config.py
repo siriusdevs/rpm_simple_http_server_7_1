@@ -8,3 +8,4 @@ PAGES = page_7_1, page_7_2
 SELECT_GROUPS = 'SELECT * FROM group_{group_num}'
 INSERT = 'INSERT INTO group_{group_num} VALUES (\'{name}\')'
 DELETE = 'DELETE FROM group_{group_num} WHERE name=\'{name}\''
+GET_TOKEN = 'SELECT token FROM token WHERE username=\'{username}\''
