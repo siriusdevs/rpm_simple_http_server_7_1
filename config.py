@@ -9,3 +9,7 @@ SELECT_GROUPS = 'SELECT * FROM group_{group_num}'
 INSERT = 'INSERT INTO group_{group_num} VALUES (\'{name}\')'
 DELETE = 'DELETE FROM group_{group_num} WHERE name=\'{name}\''
 GET_TOKEN = 'SELECT token FROM token WHERE username=\'{username}\''
+OK = 200
+NOT_FOUND = 404
+NO_CONTENT = 400
+FORBIDDEN = 403

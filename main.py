@@ -85,12 +85,12 @@ class CustomHandler(BaseHTTPRequestHandler):
                 name = request_data.get('name')
                 result = 'OK' if DbUtils.change_db(self.path, name, request) else 'FAIL'
                 print(1)
-                return 200, f'{self.command} {result}'
+                return OK, f'{self.command} {result}'
             print(2)
-            return 400, f'No content provided by {self.command}'
+            return NO_CONTENT, f'No content provided by {self.command}'
         else:                
             print(3)
-            return 404, 'Content not found'
+            return NOT_FOUND, 'Content not found'
 
 
     def check_auth(self):
@@ -103,7 +103,7 @@ class CustomHandler(BaseHTTPRequestHandler):
         if self.check_auth():
             self.respond(*self.make_changes())
             return
-        self.respond(403, 'Auth Fail')
+        self.respond(FORBIDDEN, 'Auth Fail')
 
     def do_POST(self):
         self.process_request()
