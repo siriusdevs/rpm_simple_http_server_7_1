@@ -6,6 +6,7 @@ from views import students, weather, main_page
 from weather import get_weather
 from dotenv import load_dotenv
 from os import getenv
+from typing import Callable
 
 
 load_dotenv()
@@ -41,15 +42,20 @@ class CustomHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(msg.encode())
 
-    def make_changes(self) -> tuple:
+    def read_content_json(self) -> dict:
+        content_length = int(self.headers.get('Content-Length', 0))
+        if content_length:
+            return loads(self.rfile.read(content_length).decode())
+        return {}
+
+    def make_changes(self, db_callback: Callable):
         if self.path in PAGES:
-            request = INSERT if self.command == 'POST' else DELETE
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length:
-                request_data = loads(self.rfile.read(content_length).decode())
-                name = request_data.get('name')
-                answer_msg = 'OK' if DbHandler.change_db(self.path, name, request) else 'FAIL'
-                return OK, f'{self.command} {answer_msg}'
+            content = self.read_content_json()
+            if content:
+                if all([key in content for key in STUDENTS_REQUIRED_ATTRS]):
+                    answer = 'OK' if db_callback(content) else 'FAIL'
+                    return OK, f'{self.command} {answer}'
+                return BAD_REQUEST, f'Required keys to add: {STUDENTS_REQUIRED_ATTRS}'
             return BAD_REQUEST, f'No content provided by {self.command}'
         return NOT_FOUND, 'Content not found'
 
@@ -61,11 +67,11 @@ class CustomHandler(BaseHTTPRequestHandler):
 
     def process(self):
         if self.check_auth():
-            self.respond(*self.make_changes())
+            self.respond(*self.make_changes(DbHandler.insert if self.command == 'PUT' else DbHandler.delete))
             return
         self.respond(FORBIDDEN, 'Auth Fail')
 
-    def do_POST(self):
+    def do_PUT(self): ############## PUT
         self.process()
 
     def do_DELETE(self):

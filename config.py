@@ -22,8 +22,10 @@ BAD_REQUEST = 400
 # db requests
 SELECTOR = 'SELECT * FROM students'
 GET_TOKEN = 'SELECT token FROM token WHERE username=\'{username}\''
-INSERT = 'INSERT INTO group_{group_num} VALUES (\'{name}\')'
-DELETE = 'DELETE FROM group_{group_num} WHERE name=\'{name}\''
+INSERT = 'INSERT INTO {table} ({keys}) VALUES ({values})'
+DELETE = 'DELETE FROM {table} '
+STUDENTS_REQUIRED_ATTRS = ['fname', 'lname', 'group_']
+
 
 # page str to byte coding
 CODING = 'KOI8-R'

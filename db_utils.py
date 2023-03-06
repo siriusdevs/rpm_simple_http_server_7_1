@@ -1,4 +1,4 @@
-from config import GET_TOKEN, SELECTOR
+from config import GET_TOKEN, SELECTOR, DELETE, INSERT
 from views import list_to_view
 from psycopg2 import connect
 from dotenv import load_dotenv
@@ -36,12 +36,30 @@ class DbHandler:
             return db_token[0] == req_token
         return False
 
+    @staticmethod
+    def compose_insert(insert_data: dict):
+        keys = tuple(insert_data.keys())
+        values = [insert_data[key] for key in keys]
+        attrs = ', '.join(keys)
+        values = ', '.join([str(value) if isinstance(value, (int, float)) else f"'{value}'" for value in values])
+        return INSERT.format(table='students', keys=attrs, values=values)
+
     @classmethod
-    def change_db(cls, path: str, name: str, request: str) -> bool:
+    def insert(cls, students_data: dict):
         try:
-            cls.db_cursor.execute(request.format(group_num=path[1:], name=name))
+            cls.db_cursor.execute(cls.compose_insert(students_data))
         except Exception as error:
-            print(f'change_db error: {error}')
+            print(f'{__name__} error: {error}')
+            return False
+        cls.db_connection.commit()
+        return bool(cls.db_cursor.rowcount)
+
+    @classmethod
+    def delete(cls, req_conds: dict):
+        try:
+            cls.db_cursor.execute(cls.query_request(DELETE.format(table='students'), req_conds))
+        except Exception as error:
+            print(f'{__name__} error: {error}')
             return False
         cls.db_connection.commit()
         return bool(cls.db_cursor.rowcount)
