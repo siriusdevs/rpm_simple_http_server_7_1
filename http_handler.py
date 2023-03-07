@@ -20,12 +20,13 @@ class CustomHandler(BaseHTTPRequestHandler):
         if self.path.startswith(STUDENTS):
             return students(DbHandler.get_data(self.parse_query()))
         elif self.path.startswith(WEATHER):
-            return weather(get_weather(YANDEX_KEY))
+            return weather(get_weather(self.parse_query()))
         return main_page()
 
     def parse_query(self) -> dict:
-        if '?' in self.path:
-            query = self.path[self.path.find('?') + 1:].split('&')
+        index = self.path.find('?')
+        if index != -1 and index != len(self.path) - 1:
+            query = self.path[index + 1:].split('&')
             attrs_values = [line.split('=') for line in query]
             return {key: int(value) if value.isdigit() else value for key, value in attrs_values}
         return None

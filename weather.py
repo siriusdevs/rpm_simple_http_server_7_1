@@ -1,14 +1,20 @@
 from requests import get
 from config import COLLEGE_LOCATION, YANDEX_API_URL, YANDEX_API_HEADER, OK
+from dotenv import load_dotenv
+from os import getenv
 
 
-def get_weather(api_key: str) -> dict:
+load_dotenv()
+YANDEX_KEY = getenv('YANDEX_KEY')
+
+
+def get_weather(query: dict) -> dict:
     weather_data = {
         'temp': None,
         'feels_like': None,
         'condition': None
     }
-    response = get(YANDEX_API_URL, params=COLLEGE_LOCATION, headers={YANDEX_API_HEADER: api_key})
+    response = get(YANDEX_API_URL, params=COLLEGE_LOCATION, headers={YANDEX_API_HEADER: YANDEX_KEY})
     if response.status_code == OK:
         response_data = response.json()
         if response_data:
