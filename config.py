@@ -39,7 +39,6 @@ LOCATIONS = {
     'sochi': SOCHI_LOCATION, 
     'polyana': POLYANA_LOCATION
 }
-
 YANDEX_API_URL = 'https://api.weather.yandex.ru/v2/informers'
 
 # headers' names
