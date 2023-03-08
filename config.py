@@ -43,3 +43,6 @@ YANDEX_API_URL = 'https://api.weather.yandex.ru/v2/informers'
 
 # headers' names
 YANDEX_API_HEADER = 'X-Yandex-API-Key'
+
+# debug messsages
+WEATHER_MSG = 'YANDEX API get_weather'

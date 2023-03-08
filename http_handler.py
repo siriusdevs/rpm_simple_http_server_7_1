@@ -24,9 +24,9 @@ class CustomHandler(BaseHTTPRequestHandler):
         return main_page()
 
     def parse_query(self) -> dict:
-        index = self.path.find('?')
-        if index != -1 and index != len(self.path) - 1:
-            query = self.path[index + 1:].split('&')
+        qm_ind = self.path.find('?')
+        if '?' in self.path and qm_ind != len(self.path) - 1:
+            query = self.path[qm_ind + 1:].split('&')
             attrs_values = [line.split('=') for line in query]
             return {key: int(value) if value.isdigit() else value for key, value in attrs_values}
         return None
@@ -72,7 +72,7 @@ class CustomHandler(BaseHTTPRequestHandler):
             return
         self.respond(FORBIDDEN, 'Auth Fail')
 
-    def do_PUT(self): ############## PUT
+    def do_PUT(self):
         self.process()
 
     def do_DELETE(self):

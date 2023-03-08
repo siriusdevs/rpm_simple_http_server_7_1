@@ -41,7 +41,7 @@ class DbHandler:
         keys = tuple(insert_data.keys())
         values = [insert_data[key] for key in keys]
         attrs = ', '.join(keys)
-        values = ', '.join([str(value) if isinstance(value, (int, float)) else f"'{value}'" for value in values])
+        values = ', '.join([str(val) if isinstance(val, (int, float)) else f"'{val}'" for val in values])
         return INSERT.format(table='students', keys=attrs, values=values)
 
     @classmethod
