@@ -45,6 +45,10 @@ class DbHandler:
         return INSERT.format(table='students', keys=attrs, values=values)
 
     @classmethod
+    def update(cls, data: dict, where: dict): #TODO update
+        pass
+
+    @classmethod
     def insert(cls, students_data: dict):
         try:
             cls.db_cursor.execute(cls.compose_insert(students_data))

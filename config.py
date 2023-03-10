@@ -13,18 +13,25 @@ MAIN_PAGE = f'{TEMPLATES}index.html'
 WEATHER_TEMPLATE = f'{TEMPLATES}weather.html'
 STUDENTS_TEMPLATE = f'{TEMPLATES}students.html'
 
-# HTTP codes
-OK = 200
+# HTTP server error codes
 NOT_FOUND = 404
 FORBIDDEN = 403
 BAD_REQUEST = 400
+# HTTP OK codes
+OK = 200
+CREATED = 201
+NO_CONTENT = 204
+# other HTTP codes
+NOT_IMPLEMENTED = 501
 
 # db requests
 SELECTOR = 'SELECT * FROM students'
 GET_TOKEN = 'SELECT token FROM token WHERE username=\'{username}\''
 INSERT = 'INSERT INTO {table} ({keys}) VALUES ({values})'
+UPDATE = 'UPDATE {table} SET ({request})'
 DELETE = 'DELETE FROM {table} '
 STUDENTS_REQUIRED_ATTRS = ['fname', 'lname', 'group_']
+STUDENTS_ALL_ATTRS = ['fname', 'lname', 'group_', 'sname', 'age']
 
 
 # page str to byte coding

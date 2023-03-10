@@ -31,15 +31,13 @@ class CustomHandler(BaseHTTPRequestHandler):
             return {key: int(value) if value.isdigit() else value for key, value in attrs_values}
         return None
 
-    def do_GET(self):
-        self.send_response(OK)
-        self.send_header('Content-type', 'html')
-        self.end_headers()
+    def get(self):
         self.wfile.write(self.get_template())
+        return OK, 'Server generated page'
 
     def respond(self, http_code: int, msg: str):
         self.send_response(http_code)
-        self.send_header('Content-type', 'text')
+        self.send_header('Content-type', 'html/text')
         self.end_headers()
         self.wfile.write(msg.encode())
 
@@ -49,16 +47,48 @@ class CustomHandler(BaseHTTPRequestHandler):
             return loads(self.rfile.read(content_length).decode())
         return {}
 
-    def make_changes(self, db_callback: Callable):
-        if self.path in PAGES:
-            content = self.read_content_json()
-            if content:
-                if all([key in content for key in STUDENTS_REQUIRED_ATTRS]):
-                    answer = 'OK' if db_callback(content) else 'FAIL'
-                    return OK, f'{self.command} {answer}'
-                return BAD_REQUEST, f'Required keys to add: {STUDENTS_REQUIRED_ATTRS}'
-            return BAD_REQUEST, f'No content provided by {self.command}'
+    def delete(self):
+        if self.path.startswith(STUDENTS):
+            query = self.parse_query()
+            if not query:
+                return BAD_REQUEST, 'DELETE FAILED'
+            if DbHandler.delete(query):
+                return OK, 'Content has been deleted'
         return NOT_FOUND, 'Content not found'
+
+    def put(self):
+        if self.path.startswith(STUDENTS):
+            content = self.read_content_json()
+            if not content:
+                return BAD_REQUEST, f'No content provided by {self.command}'
+            for attr in content.keys():
+                if attr not in STUDENTS_ALL_ATTRS:
+                    return NOT_IMPLEMENTED, f'students do not have attribute: {attr}'
+            if all([key in content for key in STUDENTS_REQUIRED_ATTRS]):
+                answer = 'OK' if DbHandler.insert(content) else 'FAIL'
+                return CREATED, f'{self.command} {answer}'
+            return BAD_REQUEST, f'Required keys to add: {STUDENTS_REQUIRED_ATTRS}'
+        return NO_CONTENT, 'Content not found'
+
+    def post(self):
+        if self.path.startswith(STUDENTS):
+            content = self.read_content_json()
+            if not content:
+                return BAD_REQUEST, f'No content provided by {self.command}'
+            for attr in content.keys():
+                if attr not in STUDENTS_ALL_ATTRS:
+                    return NOT_IMPLEMENTED, f'students do not have attribute: {attr}'
+        # TODO if not update -> try insert
+        if self.path.startswith(STUDENTS):
+            query = self.parse_query()
+            if not query:
+                return BAD_REQUEST, 'Content not specified'
+            for attr in query.keys():
+                if attr not in STUDENTS_ALL_ATTRS:
+                    return NOT_IMPLEMENTED, f'students do not have attribute: {attr}'
+            DbHandler.update(where=query, data=content)
+            # TODO update
+                
 
     def check_auth(self):
         auth = self.headers.get('Authorization', '').split()
@@ -66,14 +96,32 @@ class CustomHandler(BaseHTTPRequestHandler):
             return DbHandler.is_valid_token(auth[0], auth[1][1:-1])
         return False
 
-    def process(self):
+    def process_request(self):
+        if self.command == 'GET':
+            self.respond(*self.get())
+            return
+        elif self.command == 'PUT':
+            process = self.put
+        elif self.command == 'POST':
+            process = self.post
+        elif self.command == 'DELETE':
+            process = self.delete
+        else:
+            self.respond(NOT_IMPLEMENTED, 'Unknown request method')
+            return
         if self.check_auth():
-            self.respond(*self.make_changes(DbHandler.insert if self.command == 'PUT' else DbHandler.delete))
+            self.respond(*process())
             return
         self.respond(FORBIDDEN, 'Auth Fail')
 
     def do_PUT(self):
-        self.process()
+        self.process_request()
 
     def do_DELETE(self):
-        self.process()
+        self.process_request()
+
+    def do_POST(self):
+        self.process_request()
+    
+    def do_GET(self):
+        self.process_request()
