@@ -58,9 +58,10 @@ class CustomHandler(BaseHTTPRequestHandler):
                 return OK, 'Content has been deleted'
         return NOT_FOUND, 'Content not found'
 
-    def put(self):
+    def put(self, content=None):
         if self.path.startswith(STUDENTS):
-            content = self.read_content_json()
+
+            content = self.read_content_json() if not content else content
             if not content:
                 return BAD_REQUEST, f'No content provided by {self.command}'
             for attr in content.keys():
@@ -77,19 +78,23 @@ class CustomHandler(BaseHTTPRequestHandler):
             content = self.read_content_json()
             if not content:
                 return BAD_REQUEST, f'No content provided by {self.command}'
-            for attr in content.keys():
-                if attr not in STUDENTS_ALL_ATTRS:
-                    return NOT_IMPLEMENTED, f'students do not have attribute: {attr}'
-        # TODO if not update -> try insert
-        if self.path.startswith(STUDENTS):
             query = self.parse_query()
             if not query:
                 return BAD_REQUEST, 'Content not specified'
             for attr in query.keys():
+
                 if attr not in STUDENTS_ALL_ATTRS:
+                    print(attr)
                     return NOT_IMPLEMENTED, f'students do not have attribute: {attr}'
-            DbHandler.update(where=query, data=content)
+            res = DbHandler.update(where=query, data=content)
+            print(res)
+            if not res:
+                return self.put(content)
+            return OK, f'{self.command} "OK"'
+
+
             # TODO update
+
                 
 
     def check_auth(self):
