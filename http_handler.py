@@ -6,7 +6,6 @@ from views import students, weather, main_page
 from weather import get_weather
 from dotenv import load_dotenv
 from os import getenv
-from typing import Callable
 
 
 load_dotenv()
@@ -60,7 +59,6 @@ class CustomHandler(BaseHTTPRequestHandler):
 
     def put(self, content=None):
         if self.path.startswith(STUDENTS):
-
             content = self.read_content_json() if not content else content
             if not content:
                 return BAD_REQUEST, f'No content provided by {self.command}'
@@ -91,11 +89,6 @@ class CustomHandler(BaseHTTPRequestHandler):
             if not res:
                 return self.put(content)
             return OK, f'{self.command} "OK"'
-
-
-            # TODO update
-
-                
 
     def check_auth(self):
         auth = self.headers.get('Authorization', '').split()

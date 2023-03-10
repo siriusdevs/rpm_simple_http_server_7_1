@@ -14,6 +14,10 @@ PG_USER = getenv('PG_USER')
 PG_PASSWORD = getenv('PG_PASSWORD')
 
 
+def is_num(value: any):
+    return isinstance(value, (int, float))
+
+
 class DbHandler:
 
     db_connection = connect(dbname=PG_DBNAME, host=PG_HOST, port=PG_PORT, user=PG_USER, password=PG_PASSWORD)
@@ -41,19 +45,14 @@ class DbHandler:
         keys = tuple(insert_data.keys())
         values = [insert_data[key] for key in keys]
         attrs = ', '.join(keys)
-        values = ', '.join([str(val) if isinstance(val, (int, float)) else f"'{val}'" for val in values])
+        values = ', '.join([str(val) if is_num(val) else f"'{val}'" for val in values])
         return INSERT.format(table='students', keys=attrs, values=values)
 
     @classmethod
     def update(cls, data: dict, where: dict):
-        # TODO update
-
-        values = ', '.join([f"{key} = {val}" if isinstance(val, (int, float)) else f"{key} = '{val}'"\
-                            for key, val in data.items()])
-        request = "{0}".format(values)
-
+        req = ', '.join([f"{key}={val}" if is_num(val) else f"{key}='{val}'" for key, val in data.items()])
         try:
-            cls.db_cursor.execute(cls.query_request(UPDATE.format(table='students', request=request), where))
+            cls.db_cursor.execute(cls.query_request(UPDATE.format(table='students', request=req), where))
         except Exception as error:
             print(f'{__name__} error: {error}')
             return False
