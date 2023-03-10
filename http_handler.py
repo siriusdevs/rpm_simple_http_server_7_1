@@ -31,13 +31,15 @@ class CustomHandler(BaseHTTPRequestHandler):
             return {key: int(value) if value.isdigit() else value for key, value in attrs_values}
         return None
 
-    def get(self):
+    def do_GET(self):
+        self.send_response(OK)
+        self.send_header('Content-Type', 'html')
+        self.end_headers()
         self.wfile.write(self.get_template())
-        return OK, 'Server generated page'
 
     def respond(self, http_code: int, msg: str):
         self.send_response(http_code)
-        self.send_header('Content-type', 'html/text')
+        self.send_header('Content-Type', 'text/html')
         self.end_headers()
         self.wfile.write(msg.encode())
 
@@ -121,7 +123,4 @@ class CustomHandler(BaseHTTPRequestHandler):
         self.process_request()
 
     def do_POST(self):
-        self.process_request()
-    
-    def do_GET(self):
         self.process_request()
