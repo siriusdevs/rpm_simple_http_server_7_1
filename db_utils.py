@@ -1,4 +1,4 @@
-from config import GET_TOKEN, SELECTOR, DELETE, INSERT
+from config import GET_TOKEN, SELECTOR, DELETE, INSERT, UPDATE
 from views import list_to_view
 from psycopg2 import connect
 from dotenv import load_dotenv
@@ -45,8 +45,20 @@ class DbHandler:
         return INSERT.format(table='students', keys=attrs, values=values)
 
     @classmethod
-    def update(cls, data: dict, where: dict): #TODO update
-        pass
+    def update(cls, data: dict, where: dict):
+        # TODO update
+
+        values = ', '.join([f"{key} = {val}" if isinstance(val, (int, float)) else f"{key} = '{val}'"\
+                            for key, val in data.items()])
+        request = "{0}".format(values)
+
+        try:
+            cls.db_cursor.execute(cls.query_request(UPDATE.format(table='students', request=request), where))
+        except Exception as error:
+            print(f'{__name__} error: {error}')
+            return False
+        cls.db_connection.commit()
+        return bool(cls.db_cursor.rowcount)
 
     @classmethod
     def insert(cls, students_data: dict):
