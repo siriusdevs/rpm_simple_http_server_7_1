@@ -12,15 +12,23 @@ TEMPLATES = 'templates/'
 MAIN_PAGE = f'{TEMPLATES}index.html'
 WEATHER_TEMPLATE = f'{TEMPLATES}weather.html'
 STUDENTS_TEMPLATE = f'{TEMPLATES}students.html'
+ERROR_PAGE = f'{TEMPLATES}error.html'
+
+# HTTP headers
+CONTENT_LENGTH = 'Content-Length'
+CONTENT_TYPE = 'Content-Type', 'text/html'
+AUTH = 'Authorization'
 
 # HTTP server error codes
 NOT_FOUND = 404
 FORBIDDEN = 403
 BAD_REQUEST = 400
+
 # HTTP OK codes
 OK = 200
 CREATED = 201
 NO_CONTENT = 204
+
 # other HTTP codes
 NOT_IMPLEMENTED = 501
 
@@ -32,7 +40,7 @@ UPDATE = 'UPDATE {table} SET {request}'
 DELETE = 'DELETE FROM {table} '
 STUDENTS_REQUIRED_ATTRS = ['fname', 'lname', 'group_']
 STUDENTS_ALL_ATTRS = ['id','fname', 'lname', 'group_', 'sname', 'age']
-
+WEATHER_ALL_ATTRS = ['location']
 
 # page str to byte coding
 CODING = 'KOI8-R'
@@ -53,9 +61,3 @@ YANDEX_API_HEADER = 'X-Yandex-API-Key'
 
 # debug messsages
 WEATHER_MSG = 'YANDEX API get_weather'
-""""Владик Нестеров, [10.03.2023 17:41]
-create extension "uuid-ossp";
-insert into token values ('admin', uuid_generate_v4())
-
-Владик Нестеров, [10.03.2023 17:41]
-select * from token"""
